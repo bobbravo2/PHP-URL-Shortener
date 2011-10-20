@@ -37,7 +37,8 @@ if(TRACK)
 {
 	mysql_query('UPDATE ' . DB_TABLE . ' SET referrals=referrals+1 WHERE id="' . mysql_real_escape_string($shortened_id) . '"');
 }
-
+header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 header('HTTP/1.1 301 Moved Permanently');
 header('Location: ' .  $long_url);
 exit;

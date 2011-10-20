@@ -12,10 +12,15 @@ $url_to_shorten = get_magic_quotes_gpc() ? stripslashes(trim($_REQUEST['longurl'
 if(!empty($url_to_shorten) && preg_match('|^https?://|', $url_to_shorten))
 {
 	require('config.php');
-
+	//Check if the shortened url is a resubmit of an already shortened url
+	if (preg_match('|^'.BASE_HREF.'|', $url_to_shorten)) {
+		header("HTTP/1.0 400 Bad Request");
+		die('This url is already short!');
+	}
 	// check if the client IP is allowed to shorten
-	if($_SERVER['REMOTE_ADDR'] != LIMIT_TO_IP)
+	if(!AUTH)
 	{
+		header("HTTP/1.0 403 Forbidden");
 		die('You are not allowed to shorten URLs with this service.');
 	}
 	
@@ -29,6 +34,7 @@ if(!empty($url_to_shorten) && preg_match('|^https?://|', $url_to_shorten))
 		curl_close($handle);
 		if(curl_getinfo($ch, CURLINFO_HTTP_CODE) == '404')
 		{
+			header("HTTP/1.0 400 Bad Request");
 			die('Not a valid URL');
 		}
 	}
@@ -48,7 +54,11 @@ if(!empty($url_to_shorten) && preg_match('|^https?://|', $url_to_shorten))
 		$shortened_url = getShortenedURLFromID(mysql_insert_id());
 		mysql_query('UNLOCK TABLES');
 	}
+	header("HTTP/1.0 200 OK");
 	echo BASE_HREF . $shortened_url;
+} else {
+	header("HTTP/1.0 400 Bad Request");
+	die('Invalid URL');
 }
 
 function getShortenedURLFromID ($integer, $base = ALLOWED_CHARS)
