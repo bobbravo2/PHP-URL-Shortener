@@ -1,31 +1,15 @@
 <?php 
-require 'config.php';
-header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-/* DB Schema
-CREATE TABLE `shortenedurls` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `long_url` varchar(255) NOT NULL,
-  `created` int(10) unsigned NOT NULL,
-  `creator` char(15) NOT NULL,
-  `referrals` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `long` (`long_url`),
-  KEY `referrals` (`referrals`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
- */
+require_once 'config.php';
+require_once 'includes.php';
+noCacheHeaders();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-<title>Circletr.ee Orlando Web Design URL shortener</title>
-<link type="text/css" rel="stylesheet" href="style.css" />
-<link type="text/css" rel="stylesheet" media="only screen and (max-width: 480px)" href="mobile.css">
+<title>PHP URL shortener</title>
 <meta name = "viewport" content = "width = device-width">
 </head>
 <body>
-<div id="wrapper">
-<a href="http://mycircletree.com" title="Circle Tree Orlando Web Design Logo"><span id="logo"></span></a>
 <?php if (AUTH) { ?>
 <form method="post" action="shorten.php" id="shortener">
 	<label for="longurl">URL to shorten</label> 
@@ -77,7 +61,10 @@ $longurl.setCursorPosition(7);
 	});
 });
 </script>
-<?php } else { ?>
+<?php } else { 
+//Unauthorized. Uncomment below to redirect to your homepage
+//header('Location: http://yourmainwebsite.com');
+	?>
 	<h1>Orlando Web Design by Circle Tree</h1>
 	<a href="http://mycircletree.com/">Circle Tree WordPress Web Design in Orlando Florida</a>
 	<h2>Hello there!</h2> 
