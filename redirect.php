@@ -33,9 +33,6 @@ if( CACHE ) {
 } else {
 	$long_url = getLongURL($shortened_id);
 }
-if (! $long_url ) {
-	die('Invalid URL');
-}
 
 if(TRACK) {
 	$query = 	'UPDATE ' . DB_TABLE . ' SET referrals = referrals + 1 

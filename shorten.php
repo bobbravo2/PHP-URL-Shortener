@@ -1,4 +1,10 @@
 <?php
+/*
+ * First authored by Brian Cray
+ * License: http://creativecommons.org/licenses/by/3.0/
+ * Contact the author at http://briancray.com/
+ */
+ 
 $url_to_shorten = get_magic_quotes_gpc() ? stripslashes(trim($_REQUEST['longurl'])) : trim($_REQUEST['longurl']);
 
 if(!empty($url_to_shorten) && preg_match('|^https?://|', $url_to_shorten)) {

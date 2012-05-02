@@ -6,10 +6,14 @@ noCacheHeaders();
 <!DOCTYPE html>
 <html>
 <head>
-<title>PHP URL shortener</title>
+<title>Circletr.ee Orlando Web Design URL shortener</title>
+<link type="text/css" rel="stylesheet" href="style.css" />
+<link type="text/css" rel="stylesheet" media="only screen and (max-width: 480px)" href="mobile.css">
 <meta name = "viewport" content = "width = device-width">
 </head>
 <body>
+<div id="wrapper">
+<a href="http://mycircletree.com" title="Circle Tree Orlando Web Design Logo"><span id="logo"></span></a>
 <?php if (AUTH) { ?>
 <form method="post" action="shorten.php" id="shortener">
 	<label for="longurl">URL to shorten</label> 
@@ -61,10 +65,7 @@ $longurl.setCursorPosition(7);
 	});
 });
 </script>
-<?php } else { 
-//Unauthorized. Uncomment below to redirect to your homepage
-//header('Location: http://yourmainwebsite.com');
-	?>
+<?php } else { ?>
 	<h1>Orlando Web Design by Circle Tree</h1>
 	<a href="http://mycircletree.com/">Circle Tree WordPress Web Design in Orlando Florida</a>
 	<h2>Hello there!</h2> 

@@ -26,7 +26,6 @@ if (! is_resource($handle)) {
 }
 unset($handle);
 
-//Select the database
 $select = mysql_select_db(DB_NAME);
 if (! $select ) {
 	die('Error selecting the db: '.DB_NAME);
@@ -57,9 +56,7 @@ define('AUTH', $auth);
 define('TRACK', TRUE);
 
 // check if URL exists first
-$check_url = true;
-if (! function_exists('curl_init') ) $check_url = false;
-define('CHECK_URL', $check_url);
+define('CHECK_URL', TRUE);
 
 // change the shortened URL allowed characters
 define('ALLOWED_CHARS', '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
