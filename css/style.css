@@ -1,0 +1,35 @@
+#ajax_loading
+{
+	width: 224px;
+	height: 21px;
+	display: block;
+	background: url(../img/ajax-loader.gif) no-repeat;
+	/*+placement:anchor-top-right 7px 6px;*/
+	position: absolute;
+	right: 7px;
+	top: 6px;
+	display: none;
+}
+#dialog IFRAME
+{
+	width: 630px;
+	height: 410px;
+	overflow: hidden;
+	border: none;
+	/*+placement:margin-auto 0px 0px;*/
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	left: 0px;
+	top: 0px;
+	display: block;
+	padding: 0;
+}
+IFRAME#short_url_qr_code
+{
+	border: 0px solid #000000;
+	width: 150px;
+	height: 150px;
+	vertical-align: middle;
+	margin-left: 20px;
+}
