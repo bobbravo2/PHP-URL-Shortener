@@ -2,8 +2,6 @@
 /*
  * PHP URL Shortener by Circle Tree
  */
-//Suppress PHP errors
-ini_set('display_errors', 0);
 
 //Set this to your local config file
 //make sure to add it to >> .gitignore
@@ -14,11 +12,14 @@ if ( ! file_exists( $local_config ) ) {
 	define('DB_PASSWORD', 'password');
 	define('DB_NAME', 'database_name');
 	define('DB_HOST', 'localhost');
+	ini_set('display_errors', 0);
 } else {
+	ini_set('display_errors', 1);
+	error_reporting(E_ALL);
 	require_once $local_config;
 }
 //Uncomment this to redirect unauthorized users
-// define('REDIRECT_URL', 'http://yourhomepage.com/');
+// define('REDIRECT_URL', 'http://google.com/');
 
 /**
  * @var int QR code preview size
@@ -50,9 +51,6 @@ define('TRACK', TRUE);
 
 // check if URL exists first
 define('CHECK_URL', TRUE);
-
-//Redirect unauthorized users and failed redirects here
-define("HOME_URL", 'http://mycircletree.com/');
 
 // change the shortened URL allowed characters
 define('ALLOWED_CHARS', '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
