@@ -32,6 +32,7 @@ CREATE  TABLE IF NOT EXISTS `click` (
   `time` DATETIME NULL ,
   `ua` TEXT NULL COMMENT 'user agent string' ,
   `referrer` TEXT NULL COMMENT 'Referrer String' ,
+  `remote_ip` CHAR(15) NOT NULL COMMENT 'IP address', 
   PRIMARY KEY (`id`, `url_id`) ,
   INDEX `fk_click_url` (`url_id` ASC) ,
   CONSTRAINT `fk_click_url`

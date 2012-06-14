@@ -33,6 +33,7 @@ if(TRACK) {
 	$referrer = isset($_SERVER['HTTP_REFERER']) ? mysql_real_escape_string($_SERVER['HTTP_REFERER']): 'NULL';
 	$ua =  isset($_SERVER['HTTP_USER_AGENT']) ? mysql_real_escape_string($_SERVER['HTTP_USER_AGENT']) : 'NULL';
 	$ip =  isset($_SERVER['REMOTE_ADDR']) ? mysql_real_escape_string($_SERVER['REMOTE_ADDR']) : 'NULL';
+	if (isset($_SERVER['X_FORWARDED_FOR'])) $ip = mysql_real_escape_string($_SERVER['X_FORWARDED_FOR']);
 	$sql = "INSERT INTO  `click` 
 				(`url_id` , `ua` ,`referrer`, `remote_ip`)
 					VALUES 
