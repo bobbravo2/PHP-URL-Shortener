@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'includes.php';
 noCacheHeaders();
+userIsAuthorized();
 ?>
 <!DOCTYPE html>
 <html>
@@ -13,8 +14,15 @@ noCacheHeaders();
 </head>
 <body>
 <div id="wrapper">
-<a href="http://mycircletree.com" title="Circle Tree Orlando Web Design Logo"><span id="logo"></span></a>
-<h1>URL Shortener &amp; QR Code Generator</h1>
+<a href="/">
+<h1 class="logo" >URL Shortener &amp; QR Code Generator</h1>
+</a>
+<?php if (isset($_GET['success'])): ?>
+	<div class="alert alert-success">
+	<a class="close" data-dismiss="alert" href="#">&times;</a>
+		<h1>Installation Successful</h1>
+	</div>
+<?php endif;?>
 <div id="shortener_wrapper" class="well" >
 	<div id="ajax_loading"></div>
 	<form method="post" action="shorten.php" id="shortener" style="display:none;" >
@@ -60,8 +68,8 @@ noCacheHeaders();
 		<iframe src="#"></iframe>
 	</div>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js" language="javascript"></script>
-	<link type="text/css" rel="Stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/base/jquery-ui.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" language="javascript"></script>
+	<link type="text/css" rel="Stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" />
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.custom.js"></script>
 </div>

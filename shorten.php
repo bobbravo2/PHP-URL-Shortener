@@ -1,27 +1,17 @@
 <?php
-/*
- * First authored by Brian Cray
- * License: http://creativecommons.org/licenses/by/3.0/
- * Contact the author at http://briancray.com/
- */
- 
+
 $url_to_shorten = get_magic_quotes_gpc() ? stripslashes(trim($_REQUEST['longurl'])) : trim($_REQUEST['longurl']);
 
 if(!empty($url_to_shorten)) {
 	require_once 'config.php';
 	require_once 'includes.php';
-	sleep(rand(1,2));
+	userIsAuthorized();
 	//Check if the shortened url is a resubmit of an already shortened url
 	if (preg_match('|^'.BASE_HREF.'|', $url_to_shorten)) {
 		header("HTTP/1.0 400 Bad Request");
 		die('This url is already short! See the full table below');
 	}
 	
-	// check if the client IP is allowed to shorten
-	if( ! AUTH ) {
-		header("HTTP/1.0 403 Forbidden");
-		die('You are not allowed to shorten URLs with this service.');
-	}
 	if (! preg_match('|^https?://|', $url_to_shorten) ) {
 		//Missing protocol, try http
 		$url_to_shorten = 'http://'.$url_to_shorten;
@@ -72,7 +62,7 @@ if(!empty($url_to_shorten)) {
 			'qr_code_download'=>$qr_code_download_url,
 		);
 	echo json_encode($response);
-	exit;
+	die;
 } else {
 	header("HTTP/1.0 400 Bad Request");
 	die('Invalid URL. Please make sure to include the http:// as part of a full address');

@@ -2,11 +2,12 @@
 require_once 'config.php';
 require_once 'includes.php';
 noCacheHeaders();
+userIsAuthorized();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-<title>Circletr.ee Orlando Web Design URL shortener</title>
+<title>Analytics</title>
 <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
 <link type="text/css" rel="stylesheet" href="css/style.css" />
 <meta name = "viewport" content = "width = device-width">

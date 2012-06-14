@@ -39,6 +39,7 @@ function getIDFromShortenedURL ($string, $base = ALLOWED_CHARS)
 function getShortenedURLFromID ($integer, $base = ALLOWED_CHARS)
 {
 	$length = strlen($base);
+	$out = "";
 	while($integer > $length - 1)
 	{
 		$out = $base[fmod($integer, $length)] . $out;
@@ -52,7 +53,8 @@ function getShortenedURLFromID ($integer, $base = ALLOWED_CHARS)
  */
 function getLongURL ($shortened_id) {
 	$sql = 'SELECT `long_url` FROM `url` WHERE id="' . mysql_real_escape_string($shortened_id) . '"';
-	$long_url = mysql_result(query($sql), 0, 0);
+	$assoc = mysql_fetch_assoc((query($sql)));
+	$long_url = $assoc['long_url'];
 	if ( empty($long_url) ) return false;
 	else return $long_url; 
 }
@@ -96,14 +98,18 @@ if (isset($_REQUEST['qr'])) {
 	die;
 }
 function install () {
-	if (! AUTH) die;
+	userIsAuthorized();
+	@mkdir(CACHE_DIR, 0777);
 	$raw_sql = file_get_contents('shortenedurls.sql');
 	$parts = explode('CREATE', $raw_sql);
 	foreach ($parts as $part) {
 		if (strstr($part, 'TABLE')) {
 			$sql = "CREATE ".$part;
-			query($sql);
+			$result = query($sql);
 		}
+	}
+	if ($result) {
+		do301($_SERVER['PHP_SELF'].'?success');
 	}
 }
 if (isset($_GET['install'])) install();
@@ -129,7 +135,8 @@ function query ($sql) {
 	if ( is_resource($result) ) return $result;
 	elseif ($result) return true;
 	else {
-		header("HTTP/1.0 400 Bad Request");
+		if (! headers_sent() )
+			header("HTTP/1.0 400 Bad Request");
 		echo '<div class="alert alert-error">';
 			if (mysql_errno() == 1146 )  {
 				echo 'No tables found. <b>Double check</b> to make sure you have';
@@ -182,6 +189,7 @@ function render_table ($url_id = NULL) {
 	$sql .= ' ORDER BY `'.$order_col.'` DESC';
 	$result = query($sql);
 	$return = '';
+	if (! $result ) return '<tr><td colspan="4"><div class="well alert alert-error">No Short URLS yet.</div></td></tr>';
 	while ($row = mysql_fetch_assoc($result)) {
 		$return .='<tr>';
 			$return .='<td>';
@@ -211,13 +219,21 @@ function render_table ($url_id = NULL) {
 	unset($result);
 	return $return;
 }
-if (! AUTH ) {
-	if (defined(REDIRECT_URL)) {
-		header('Location: '.REDIRECT_URL);
-		die;		
-	} else {
-		header('HTTP/1.0 401 Unauthorized'); 
-		die('<h1>Authorized users only</h1>');
-	}
+/**
+ * Checks if the user is authorized, stops execution if not;
+ */
+function userIsAuthorized () {
+	if ( AUTH ) return;
+	doRedirectOrDie();
+}
+function do301 ($url) {
+	noCacheHeaders();
+	header('HTTP/1.1 301 Moved Permanently');
+	header('Location: ' .  $url, TRUE, 301);
 	die;
+}
+function doRedirectOrDie($diemsg = 'Authorized Users Only') {
+	noCacheHeaders();
+	if (defined('REDIRECT_URL')) do301(REDIRECT_URL);
+	else die($diemsg);
 }
