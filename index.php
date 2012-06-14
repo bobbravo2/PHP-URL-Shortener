@@ -14,26 +14,40 @@ noCacheHeaders();
 <body>
 <div id="wrapper">
 <a href="http://mycircletree.com" title="Circle Tree Orlando Web Design Logo"><span id="logo"></span></a>
-<?php if (AUTH) { ?>
-<h1>PHP URL Shortener</h1>
-
+<h1>URL Shortener &amp; QR Code Generator</h1>
 <div id="shortener_wrapper" class="well" >
 	<div id="ajax_loading"></div>
-	<h2>Create New Short URL</h2>
 	<form method="post" action="shorten.php" id="shortener" style="display:none;" >
-		<input type="text" name="longurl" id="longurl" size="60" value="http://" class="pop" title="URL to Shorten" data-content="Redirect users to this Web Address. We will generate a short URL and QR code that points to this address."> 
-		<input type="submit" value="Shorten" id="shortenButton" class="btn btn-primary tip" title="Go time!">
-		<div class="error message" style="display:none"></div>
-		<iframe src="#" id="short_url_qr_code" style="display:none;"></iframe>
-		<a href="#" id="qr_download_link" style="display:none;">Download</a>
+	<fieldset class="control-group input-append form-horizontal" >
+		<label class="control-label" for="longurl">Create New Short URL</label>
+		<div class="controls">
+			<input type="text" name="longurl" id="longurl" value="http://" class="pop span8" title="URL to Shorten" data-content="Redirect users to this Web Address. We will generate a short URL and QR code that points to this address."> 
+			<input type="submit" value="Shorten" id="shortenButton" class="btn btn-primary tip" title="Go time!">
+		</div>
+	</fieldset>
+		<div id="messages" class="hidden"></div>
+		<div id="shorten_responses" class="well row hidden" >
+			<div class="offset1 span3">
+				<iframe src="#" id="short_url_qr_code"></iframe>
+				<a href="#" id="qr_download_link">Download</a>
+			</div>
+			<div class="span1"><span class="redir" >&rarr;</span></div>
+			<div class="span3">
+				<input class="input-xlarge uneditable-input" type="text" id="shorty" value=""/>
+			</div>
+			<div class="span1" ><span class="redir">&rarr;</span></div>
+			<div class="span3">
+				<input class="input-xlarge uneditable-input" type="text" id="longy" value=""/>
+			</div>
+		</div>
 	</form>
 </div>
-<div id="current_shorturl_wrapper">
-<h2>Current Short URLS</h2>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-striped table-condensed" >
+<div id="current_shorturl_hwrapper">
+<h1>Current Short URLS <a href="<?php echo $_SERVER['PHP_SELF']?>" class="btn" >Refresh</a></h1>
+	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-striped table table-condensed" >
 	<tr>
-		<th>Redirection</th>
-		<th>Conversions/Clicks</th>
+		<th>Short URL <abbr title="Redirects to">&rarr;</abbr> Long URL</th>
+		<th class="conversions" >Conversions</th>
 		<th>Date</th>
 		<th>QR Code</th>
 	</tr>
@@ -50,7 +64,6 @@ noCacheHeaders();
 	<link type="text/css" rel="Stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/base/jquery-ui.css" />
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/jquery.custom.js"></script>
-<?php 
-} else {
-	//Unauthorized
-}
+</div>
+</body>
+</html>

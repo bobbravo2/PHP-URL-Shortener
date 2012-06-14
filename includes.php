@@ -1,4 +1,16 @@
 <?php 
+// connect to database
+$handle = @mysql_connect(DB_HOST, DB_USER, DB_PASSWORD);
+if (! is_resource($handle)) {
+	die('Error connecting to database');
+}
+unset($handle);
+
+$select = @mysql_select_db(DB_NAME);
+if (! $select ) {
+	die('Error selecting the db: '.DB_NAME);
+}
+unset($select);
 
 /**
  * Gets id from short url (pretty string)
@@ -83,6 +95,31 @@ if (isset($_REQUEST['qr'])) {
 	displayQR((int) $_REQUEST['qr'] );
 	die;
 }
+function install () {
+	if (! AUTH) die;
+	$raw_sql = file_get_contents('shortenedurls.sql');
+	$parts = explode('CREATE', $raw_sql);
+	foreach ($parts as $part) {
+		if (strstr($part, 'TABLE')) {
+			$sql = "CREATE ".$part;
+			query($sql);
+		}
+	}
+}
+if (isset($_GET['install'])) install();
+if (isset($_REQUEST['id']) && isset($_REQUEST['new_url'])) {
+	$id = (int)$_REQUEST['id'];
+	$valid = filter_var($_REQUEST['new_url'], FILTER_VALIDATE_URL);
+	if (! $valid) {
+		noCacheHeaders();
+		header("HTTP/1.0 400 Bad Request");
+		die('Invalid URL ('.$_REQUEST['new_url'].'). Please try again.');
+	}
+	$clean_url = filter_var($_REQUEST['new_url'], FILTER_SANITIZE_URL);
+	$sql = 'UPDATE `url` set `long_url` = \''.mysql_real_escape_string($clean_url).'\' WHERE `id`='.$id;
+	query($sql);
+	die;
+}
 /**
  * Simple Query wrapper function for error handling
  * @param string $sql
@@ -93,8 +130,16 @@ function query ($sql) {
 	elseif ($result) return true;
 	else {
 		header("HTTP/1.0 400 Bad Request");
-		echo mysql_error().PHP_EOL;
-		echo $sql.PHP_EOL;
+		echo '<div class="alert alert-error">';
+			if (mysql_errno() == 1146 )  {
+				echo 'No tables found. <b>Double check</b> to make sure you have';
+				echo ' selected the correct database table, then try';
+				echo ' <a href="?install">installing</a>.';				
+			} else {
+				echo mysql_error().PHP_EOL.mysql_errno().PHP_EOL;
+				echo $sql.PHP_EOL;
+			}
+		echo '</div>';
 	}
 }
 function is_ajax () {
@@ -140,11 +185,16 @@ function render_table ($url_id = NULL) {
 	while ($row = mysql_fetch_assoc($result)) {
 		$return .='<tr>';
 			$return .='<td>';
-			$return .=' <input class="shorturl" onclick="$(this).select();" style="cursor:pointer;" type="text" size="30" name="short['.$row['id'].'" value="'.BASE_HREF.getShortenedURLFromID($row['id']).'"/><abbr title="Redirects to">&rarr;</abbr> ';
-				$return .=$row['long_url'];
+			$return .= '<div class="control-group">';
+				$return .='<input class="shorturl uneditable-input" onclick="$(this).select();" style="cursor:pointer;" type="text" size="30" name="short['.$row['id'].']" value="'.BASE_HREF.getShortenedURLFromID($row['id']).'"/>
+							<span class="redir">&rarr;</span> ';
+					$return .= '<input type="text" name="longurl'.$row['id'].'" data-id="'.$row['id'].'" class="input-large longurl"';
+					$return .= ' value="'.$row['long_url'].'" ';
+					$return .= ' />';
+				$return .= '</div>';
 			$return .='</td>';
 			$return .='<td>';
-				$return .= '<a class="analytics" href="clicks.php?id='.$row['id'].'">';
+				$return .= '<a class="analytics btn" href="clicks.php?id='.$row['id'].'">';
 					$return .= get_total_clicks($row['id']);
 				$return .= '</a>';
 			$return .='</td>';
@@ -152,12 +202,22 @@ function render_table ($url_id = NULL) {
 				$return .= $row['created'];
 			$return .='</td>';
 			$return .='<td>';
-				$return .='<a class="qrcode" href="?download='.$row['id'].'">';
-					$return .='<img src="data:image/gif;base64,'.base64_encode(getQR($row['id'])).'" height="'.QR_PREVIEW.'" width="'.QR_PREVIEW.'" alt="QR Code" />';
+				$return .='<a class="qrcode btn" href="?download='.$row['id'].'">';
+					$return .='<img src="?qr='.$row['id'].'" height="'.QR_PREVIEW.'" width="'.QR_PREVIEW.'" alt="QR Code" />';
 				$return .='</a>';
 			$return .='</td>';
 		$return .='</tr>';
 	}
 	unset($result);
 	return $return;
+}
+if (! AUTH ) {
+	if (defined(REDIRECT_URL)) {
+		header('Location: '.REDIRECT_URL);
+		die;		
+	} else {
+		header('HTTP/1.0 401 Unauthorized'); 
+		die('<h1>Authorized users only</h1>');
+	}
+	die;
 }

@@ -68,7 +68,6 @@ if(!empty($url_to_shorten)) {
 	$qr_code_download_url = BASE_HREF.'?download='.$url_id;
 	$response = array(
 			'url'=>BASE_HREF . $shortened_url, 
-			'table'=>render_table($url_id), 
 			'qr_code'=> $qr_code_url,
 			'qr_code_download'=>$qr_code_download_url,
 		);

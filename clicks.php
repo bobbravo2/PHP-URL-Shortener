@@ -2,11 +2,6 @@
 require_once 'config.php';
 require_once 'includes.php';
 noCacheHeaders();
-if (! AUTH ) {
-	if (defined(REDIRECT_URL));
-		header('Location: '.REDIRECT_URL);
-	die;
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -51,16 +46,18 @@ if (isset($_REQUEST['id'])) {
 	}
 	switch (count($clicks)) :
 	case 0: ?>
-		<div class="alert alert-info">
-			<h2>0</h2>
-			<p>No clicks yet. Hang tight, I'm sure there will be soon!</p>
+		<div class="alert alert-info hero-unit">
+		<blockquote>
+			<h2>No conversions yet. Hang tight, I'm sure there will be soon!</h2>
+		</blockquote>
+			<p class="alert alert-success" >To try the process yourself, copy the short url, and paste it in the browser. Or, scan the code right from your phone! Then hit refresh.</p>
 		</div>
 	<?php 
 		break;
 	case 1: ?>
-		<div class="alert alert-success">
+		<div class="alert alert-success hero-unit">
 			<h2>Great Job!</h2>
-			<p>One click so far on <?php echo key($clicks_per_day)?>.<br/> 
+			<p>One conversion so far on <?php echo key($clicks_per_day)?>.<br/> 
 			<b>Once there are more, we'll display a nifty graph of clicks over time.</b></p>
 		</div>
 	<?php 
@@ -91,7 +88,7 @@ if (isset($_REQUEST['id'])) {
 		<?php else: //There are multiple clicks, but only 1 day to display ?>
 			<div class="alert alert-success hero-unit">
 				<h1>Great job!</h1>
-				<p>There have been <?php echo count($clicks)?> redirections so far today. Once more time has elapsed, you'll be able to see the redirections over time.</p>
+				<p>There have been <?php echo count($clicks)?> conversions so far today. Once more time has elapsed, you'll be able to see the conversions over time.</p>
 			</div>
 		<?php endif;?>
 	<?php endswitch; 
@@ -100,3 +97,5 @@ if (isset($_REQUEST['id'])) {
 	<p>Error. No ID. Please go back and select the ID you'd like to view the click statistics for.</p>';
 </div>
 <?php } //End id check?>
+</body>
+</html>

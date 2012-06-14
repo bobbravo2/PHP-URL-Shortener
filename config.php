@@ -20,19 +20,6 @@ if ( ! file_exists( $local_config ) ) {
 //Uncomment this to redirect unauthorized users
 // define('REDIRECT_URL', 'http://yourhomepage.com/');
 
-// connect to database
-$handle = @mysql_connect(DB_HOST, DB_USER, DB_PASSWORD);
-if (! is_resource($handle)) {
-	die('Error connecting to database');
-}
-unset($handle);
-
-$select = @mysql_select_db(DB_NAME);
-if (! $select ) {
-	die('Error selecting the db: '.DB_NAME);
-}
-unset($select);
-
 /**
  * @var int QR code preview size
  */
