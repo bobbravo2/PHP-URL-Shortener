@@ -37,7 +37,7 @@ if(!empty($url_to_shorten)) {
 	//Tralingslash the url
 	$url_to_shorten = rtrim($url_to_shorten,'/').'/';
 	// check if the URL has already been shortened
-	$already_shortened = mysql_result(query('SELECT id FROM `url` WHERE `long_url` = "' . mysql_real_escape_string($url_to_shorten) . '"'), 0, 0);
+	$already_shortened = mysql_fetch_assoc(query('SELECT id FROM `url` WHERE `long_url` = "' . mysql_real_escape_string($url_to_shorten) . '"'));
 	if(! empty($already_shortened) ) {
 		// URL has already been shortened
 		$url_id = $already_shortened;

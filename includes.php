@@ -71,27 +71,19 @@ function noCacheHeaders () {
  * @param int $zoom relative QR code zoom
  * @return string image/gif image
  */
-function getQR ($id, $zoom=4) {
-	require_once 'qrcode.php';
-	$a = new QR(BASE_HREF.getShortenedURLFromID($id), QR::ECC_H);
-	//Image Output
-	return $a->image($zoom);
-}
 function downloadQR ($id, $zoom = 5) {
-	header('Content-type: image/gif');
+	require_once 'phpqrcode.php';
 	$name = preg_replace('/[^a-zA-Z0-9\.]/', '', ltrim(getLongURL($id),'http://') );
 	header('Content-Disposition: attachment; filename="'.$name.'.QR.gif"');
-	echo getQR($id, $zoom);
+	QRcode::png(BASE_HREF.getShortenedURLFromID($id));
 }
 if (isset($_REQUEST['download'])) {
 	downloadQR( (int) $_REQUEST['download'] );
 	die;
 }
 function displayQR ($id, $zoom = 4) {
-	header('Content-type: image/gif');
-	$qr_data = getQR($id, $zoom);
-	header('Content-length:'.strlen($qr_data));
-	echo $qr_data;
+	require_once 'phpqrcode.php';
+	QRcode::png(BASE_HREF.getShortenedURLFromID($id));
 }
 if (isset($_REQUEST['qr'])) {
 	displayQR((int) $_REQUEST['qr'] );

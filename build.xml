@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project name="NAME" default="default">
+     <property name="deploy" value="/Users/robertgregor/git/mysokc.com/" />
+    <!-- FILESETS -->
+    <fileset dir="." id="files">
+        <include name="**/**" />
+        <exclude name="*.git/" />
+        <exclude name="*.svn" />
+        <exclude name="config.php" />
+        <exclude name="*.css" />
+        <exclude name=".project" />
+        <exclude name="*.xml" />
+        <exclude name=".buildpath" />
+        <exclude name=".settings/*" />
+    </fileset>
+    <!-- DEPLOYMENT TARGETS -->
+    <target name="default">
+        <copy todir="${deploy}" includeemptydirs="true">
+                <fileset refid="files" />
+            </copy>
+    </target>
+</project>

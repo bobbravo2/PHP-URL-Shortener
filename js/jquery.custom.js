@@ -19,7 +19,6 @@
 })(jQuery);
 //READY
 jQuery(function($) {
-	  
 	$(window).bind('keyup', function  (e) {
 		if (e.keyCode == 13) {
 			$("#shortener").trigger('submit');
@@ -37,7 +36,8 @@ jQuery(function($) {
 	$qr_code = $("#short_url_qr_code"),
 	$qr_code_download = $("#qr_download_link"),
 	$msg = $("#messages"),
-	$qr_response_wrap = $("#shorten_responses"); 
+	$qr_response_wrap = $("#shorten_responses");
+	$longurl.setCursorPosition(7)
 	$.ajaxSetup({
 		error: function (XHR, status) {
 			$msg
