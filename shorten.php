@@ -40,8 +40,8 @@ if(!empty($url_to_shorten)) {
 	$already_shortened = mysql_fetch_assoc(query('SELECT id FROM `url` WHERE `long_url` = "' . mysql_real_escape_string($url_to_shorten) . '"'));
 	if(! empty($already_shortened) ) {
 		// URL has already been shortened
-		$url_id = $already_shortened;
-		$shortened_url = getShortenedURLFromID($already_shortened);
+		$url_id = $already_shortened['id'];
+		$shortened_url = getShortenedURLFromID($url_id);
 	} else {
 		// URL not in database, insert
 		$sql = 'INSERT INTO url (long_url, remote_ip) 
