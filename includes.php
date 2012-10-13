@@ -171,15 +171,50 @@ function formatJSdate ($time) {
 			date('s', $timestamp)
 	);
 }
+function get_order_string_from_request () {
+	return isset($_REQUEST['order']) && ($_REQUEST['order'] == 'asc') ? 'desc' : 'asc';
+}
+function get_sort_class ($orderby) {
+	
+	if (isset($_REQUEST['orderby']) && $_REQUEST['orderby'] == $orderby) {
+		return get_order_string_from_request();
+	} else {
+		return 'null';
+	}
+}
 /**
  * Table view
  * @param int $url_id optional. shows just one row of specified id
  */
-function render_table ($url_id = NULL) {
-	$order_col = 'created';
+function default_query ($order_col, $order, $url_id = null) {
 	$sql = 'SELECT * FROM `url`';
-	if (isset($url_id)) $sql .= ' WHERE `id`='. (int) $url_id;
-	$sql .= ' ORDER BY `'.$order_col.'` DESC';
+	if ( isset($url_id) ) 
+		$sql .= ' WHERE `id`='. (int) $url_id;
+	$sql .= ' ORDER BY `'.$order_col.'` '.$order;
+	return $sql;
+}
+function render_table ($url_id = NULL) {
+	//Setup asc / desc order
+	if (isset($_REQUEST['order']) && $_REQUEST['order'] == 'asc') {
+		$order = 'ASC';
+	} else {
+		$order = 'DESC';
+	}
+	
+	if (isset($_REQUEST['orderby'])) {
+		if ($_REQUEST['orderby'] == 'clicks') {
+			$sql = "SELECT *, count(click.id) AS clicks
+				FROM `click`
+				LEFT JOIN `url` ON url.id = click.url_id
+				GROUP BY url_id
+				ORDER BY clicks $order";
+		} elseif ($_REQUEST['orderby'] == 'date') {
+			$sql = default_query('created', $order);
+		}
+	} else {
+		$sql = default_query('id', $order);
+	}
+	
 	$result = query($sql);
 	$return = '';
 	if (! $result ) return '<tr><td colspan="4"><div class="well alert alert-error">No Short URLS yet.</div></td></tr>';
@@ -189,7 +224,7 @@ function render_table ($url_id = NULL) {
 			$return .= '<div class="control-group">';
 				$return .='<input class="shorturl uneditable-input" onclick="$(this).select();" style="cursor:pointer;" type="text" size="30" name="short['.$row['id'].']" value="'.BASE_HREF.getShortenedURLFromID($row['id']).'"/>
 							<span class="redir">&rarr;</span> ';
-					$return .= '<input type="text" name="longurl'.$row['id'].'" data-id="'.$row['id'].'" class="input-large longurl"';
+					$return .= '<input type="text" name="longurl'.$row['id'].'" data-id="'.$row['id'].'" class="input-xxlarge longurl"';
 					$return .= ' value="'.$row['long_url'].'" ';
 					$return .= ' />';
 				$return .= '</div>';
@@ -200,9 +235,9 @@ function render_table ($url_id = NULL) {
 				$return .= '</a>';
 			$return .='</td>';
 			$return .='<td>';
-				$return .= $row['created'];
+				$return .= date('n/j/Y', strtotime($row['created']));
 			$return .='</td>';
-			$return .='<td>';
+			$return .='<td class="qr_code_td">';
 				$return .='<a class="qrcode btn" href="?download='.$row['id'].'">';
 					$return .='<img src="?qr='.$row['id'].'" height="'.QR_PREVIEW.'" width="'.QR_PREVIEW.'" alt="QR Code" />';
 				$return .='</a>';

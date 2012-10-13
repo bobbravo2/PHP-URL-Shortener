@@ -55,8 +55,8 @@ userIsAuthorized();
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-striped table table-condensed" >
 	<tr>
 		<th>Short URL <abbr title="Redirects to">&rarr;</abbr> Long URL</th>
-		<th class="conversions" >Conversions</th>
-		<th>Date</th>
+		<th class="conversions<?php echo ' '.get_sort_class('clicks')?>" ><a href="<?php echo $_SERVER['PHP_SELF'] . '?orderby=clicks&order='.get_order_string_from_request() ?>">Conversions</a></th>
+		<th class="<?php echo get_sort_class('date')?>" ><a href="<?php echo $_SERVER['PHP_SELF'] . '?orderby=date&order='.get_order_string_from_request() ?>">Date</a></th>
 		<th>QR Code</th>
 	</tr>
 	<tbody id="short_url_list">
