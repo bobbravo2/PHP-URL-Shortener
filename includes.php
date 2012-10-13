@@ -101,6 +101,7 @@ function install () {
 		}
 	}
 	if ($result) {
+		unlink('shortenedurls.sql');
 		do301($_SERVER['PHP_SELF'].'?success');
 	}
 }
