@@ -6,7 +6,6 @@ if(!preg_match('|^[0-9a-zA-Z]{1,6}$|', $_GET['url']))
 {
 	doRedirectOrDie('Invalid Short URL');
 }
-
 $shortened_id = getIDFromShortenedURL($_GET['url']);
 
 if( CACHE ) {
@@ -36,7 +35,7 @@ if(TRACK) {
 	$ua =  isset($_SERVER['HTTP_USER_AGENT']) ? mysql_real_escape_string($_SERVER['HTTP_USER_AGENT']) : 'NULL';
 	$ip =  isset($_SERVER['REMOTE_ADDR']) ? mysql_real_escape_string($_SERVER['REMOTE_ADDR']) : 'NULL';
 	if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) $ip = mysql_real_escape_string($_SERVER['HTTP_X_FORWARDED_FOR']);
-	$sql = "INSERT INTO  `click` 
+	$sql = "INSERT INTO  `click`
 				(`url_id` , `ua` ,`referrer`, `remote_ip`)
 					VALUES 
 				('".(int)$shortened_id."','$ua', '$referrer', '$ip');";

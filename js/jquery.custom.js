@@ -47,23 +47,23 @@ jQuery(function($) {
 		}
 	});
 	$shortener_form.slideDown(0).on('submit', function () {
-		$(".message").hide(); 
 		var longurl =  $('#longurl').val();
 		$.ajax({
 				data: {
 					longurl: longurl
 					}, 
 				url: 'shorten.php',
-				success: function  (data,status) {
+				success: function  (data) {
 					$shorten_button.addClass('btn-success');
 					$longurl.val(data.url).addClass('alert alert-success').select();
 					$qr_code.attr('src', data.qr_code);
 					$qr_code_download.attr('href', data.qr_code_download);
-					$("#longy").val(longurl);
+					$("#longy").val(data.long_url);
 					$("#shorty").val(data.url); 
 					$qr_response_wrap.removeClass('hidden');
 				},
 				beforeSend: function  () {
+					$("#messages").addClass('hidden');
 					$longurl.removeClass('alert alert-error alert-success');	
 					$shorten_button.removeClass('btn-success');
 				}
@@ -87,7 +87,7 @@ jQuery(function($) {
 	$(".conversions").popover({
 		'title':'What is a conversion?',
 		'content':'This is the number of times someone has scanned the QR code, or used the Short URL.',
-		'placement': 'top',
+		'placement': 'top'
 	}); 
 	var qr_note_string = 'Click to download and save this QR code for use in promotional products, '+
 						'literature, etc.<br/><p class="alert alert-warning">Test QR codes for "scannability" before print runs.</p>';
@@ -112,7 +112,6 @@ jQuery(function($) {
 	});
 	$(".analytics").on('click', function  () {
 		var src = $(this).attr('href');
-		console.log(src)
 		$("#dialog iframe").attr('src', src);
 		$("#dialog").dialog('open');
 		return false;

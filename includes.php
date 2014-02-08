@@ -11,7 +11,6 @@ if (! $select ) {
 	die('Error selecting the db: '.DB_NAME);
 }
 unset($select);
-
 /**
  * Gets id from short url (pretty string)
  * @param short url $string
@@ -75,10 +74,10 @@ function downloadQR ($id, $zoom = 5) {
 	require_once 'phpqrcode.php';
 	$name = preg_replace('/[^a-zA-Z0-9\.]/', '', ltrim(getLongURL($id),'http://') );
 	header('Content-Disposition: attachment; filename="'.$name.'.QR.gif"');
-	QRcode::png(BASE_HREF.getShortenedURLFromID($id));
+	QRcode::png(BASE_HREF.getShortenedURLFromID($id), false, QR_ECLEVEL_H, QR_FULLSIZE);
 }
 if (isset($_REQUEST['download'])) {
-	downloadQR( (int) $_REQUEST['download'] );
+	downloadQR( (int) $_REQUEST['download']);
 	die;
 }
 function displayQR ($id, $zoom = 4) {
@@ -106,6 +105,7 @@ function install () {
 	}
 }
 if (isset($_GET['install'])) install();
+//AJAX Request for editing long urls
 if (isset($_REQUEST['id']) && isset($_REQUEST['new_url'])) {
 	$id = (int)$_REQUEST['id'];
 	$valid = filter_var($_REQUEST['new_url'], FILTER_VALIDATE_URL);
@@ -117,6 +117,9 @@ if (isset($_REQUEST['id']) && isset($_REQUEST['new_url'])) {
 	$clean_url = filter_var($_REQUEST['new_url'], FILTER_SANITIZE_URL);
 	$sql = 'UPDATE `url` set `long_url` = \''.mysql_real_escape_string($clean_url).'\' WHERE `id`='.$id;
 	query($sql);
+  if (CACHE && file_exists(CACHE_DIR . $id)) {
+    unlink(CACHE_DIR . $id);
+  }
 	die;
 }
 /**
@@ -150,6 +153,13 @@ function get_total_clicks ($id) {
 	$result = mysql_fetch_assoc(query($sql));
 	return $result['total'];
 }
+
+/**
+ * Get clicks over time
+ * @param $url_id
+ *
+ * @return array
+ */
 function get_clicks ($url_id) {
 	$sql = 'SELECT `time` FROM `click` WHERE `url_id`='.(int)$url_id. ' ORDER BY `time` ASC';
 	$result = query($sql);
@@ -175,7 +185,6 @@ function get_order_string_from_request () {
 	return isset($_REQUEST['order']) && ($_REQUEST['order'] == 'asc') ? 'desc' : 'asc';
 }
 function get_sort_class ($orderby) {
-	
 	if (isset($_REQUEST['orderby']) && $_REQUEST['orderby'] == $orderby) {
 		return get_order_string_from_request();
 	} else {
@@ -193,6 +202,43 @@ function default_query ($order_col, $order, $url_id = null) {
 	$sql .= ' ORDER BY `'.$order_col.'` '.$order;
 	return $sql;
 }
+/**
+ * @param string $timestamp
+ * @param int    $granularity
+ * @param string $format
+ *
+ * @return bool|string
+ */
+function time_ago ($timestamp, $granularity = 1, $format='Y-m-d H:i:s'){
+	$difference = time() - strtotime($timestamp);
+	if($difference < 5) return 'just now';
+	elseif($difference < (31556926 * 5 )) { //5 years
+		$periods = array(
+			'year' => 31556926,
+			'month' => 2629743,
+			'week' => 604800,
+			'day' => 86400,
+			'hour' => 3600,
+			'minute' => 60,
+			'second' => 1
+		);
+		$output = '';
+		if ($difference > 31556926 )
+			$granularity++; //If longer than a year, increase granularity
+		foreach($periods as $label => $value){
+			if($difference >= $value){
+				$time = round($difference / $value);
+				$difference %= $value;
+				$output .= ($output ? ' ' : '').$time.' ';
+				$output .= (($time > 1 ) ? $label.'s' : $label);
+				$granularity--;
+			}
+			if($granularity == 0) break;
+		}
+		return $output . ' ago';
+	}
+	else return date($format, $timestamp);
+}
 function render_table ($url_id = NULL) {
 	//Setup asc / desc order
 	if (isset($_REQUEST['order']) && $_REQUEST['order'] == 'asc') {
@@ -207,7 +253,7 @@ function render_table ($url_id = NULL) {
 				FROM `click`
 				LEFT JOIN `url` ON url.id = click.url_id
 				GROUP BY url_id
-				ORDER BY clicks $order";
+				ORDER BY clicks " . $order;
 		} elseif ($_REQUEST['orderby'] == 'date') {
 			$sql = default_query('created', $order);
 		}
@@ -242,6 +288,7 @@ function render_table ($url_id = NULL) {
 					$return .='<img src="?qr='.$row['id'].'" height="'.QR_PREVIEW.'" width="'.QR_PREVIEW.'" alt="QR Code" />';
 				$return .='</a>';
 			$return .='</td>';
+    $return .= '<td>' . (file_exists(CACHE_DIR . $row['id']) ? 'Cached' : 'Not-Cached') . '</td>';
 		$return .='</tr>';
 	}
 	unset($result);

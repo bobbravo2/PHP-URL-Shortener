@@ -56,7 +56,9 @@ define('CHECK_URL', TRUE);
 define('ALLOWED_CHARS', '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
 // do you want to cache?
-define('CACHE', FALSE);
+defined('CACHE') or define('CACHE', FALSE);
 
-// if so, where will the cache files be stored? (include trailing slash)
+/**
+ * Cache directory, trailing slash included
+ */
 define('CACHE_DIR', dirname(__FILE__) . '/cache/');

@@ -15,10 +15,6 @@ userIsAuthorized();
 <body>
 <?php 
 if (isset($_REQUEST['id'])) {
-	//todo
-	//get first click day, then get last click day
-	//do a for loop, building up the total number of clicks for each day
-	//then graph that in timeline
 	$clicks = get_clicks($_REQUEST['id']);
 	$first_click = reset($clicks);
 	$last_click = end($clicks);
@@ -34,7 +30,6 @@ if (isset($_REQUEST['id'])) {
 		for ($day = 0; $day <= $time_period_elapsed; $day++) {
 			$current_date_ts = ($day * 60 *60 * 24) + $first_click_day_ts;
 			$next_date_ts = (($day + 1) * 60 *60 * 24) + $first_click_day_ts;
-			$current_date_string = date('Y-m-d', $current_date_ts);
 			$total_day_clicks = 0;
 			foreach ($clicks as $click) {
 				$click_ts = strtotime($click['time']);
@@ -42,6 +37,7 @@ if (isset($_REQUEST['id'])) {
 					$total_day_clicks++;
 				} 
 			}
+			$current_date_string = date('Y-m-d', $current_date_ts);
 			$clicks_per_day[$current_date_string] = $total_day_clicks;
 		}
 	}

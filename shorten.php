@@ -34,8 +34,10 @@ if(!empty($url_to_shorten)) {
 			die('error checking URL');
 		}
 	}
-	//Tralingslash the url
-	$url_to_shorten = rtrim($url_to_shorten,'/').'/';
+  if (substr_count($url_to_shorten, '/') == 2) {
+	  //trailing slash the url, only if there are 2 slashes from the http://
+	  $url_to_shorten = rtrim($url_to_shorten,'/').'/';
+  }
 	// check if the URL has already been shortened
 	$already_shortened = mysql_fetch_assoc(query('SELECT id FROM `url` WHERE `long_url` = "' . mysql_real_escape_string($url_to_shorten) . '"'));
 	if(! empty($already_shortened) ) {
@@ -57,7 +59,8 @@ if(!empty($url_to_shorten)) {
 	$qr_code_url = BASE_HREF.'?qr='.$url_id;
 	$qr_code_download_url = BASE_HREF.'?download='.$url_id;
 	$response = array(
-			'url'=>BASE_HREF . $shortened_url, 
+			'url'=>BASE_HREF . $shortened_url,
+      'long_url' => getLongURL($url_id),
 			'qr_code'=> $qr_code_url,
 			'qr_code_download'=>$qr_code_download_url,
 		);
