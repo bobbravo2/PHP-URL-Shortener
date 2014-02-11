@@ -162,8 +162,18 @@ function get_total_clicks ($id) {
  */
 function get_clicks ($url_id) {
 	$sql = 'SELECT `time` FROM `click` WHERE `url_id`='.(int)$url_id. ' ORDER BY `time` ASC';
-	$result = query($sql);
-	$return = array();
+	return fetch_rows($sql);
+}
+
+/**
+ * Fetch assoc array of rows
+ * @param $sql
+ *
+ * @return array
+ */
+function fetch_rows ($sql) {
+  $result = query($sql);
+ $return = array();
 	while ($row = mysql_fetch_assoc($result)) {
 		$return[] = $row;
 	}

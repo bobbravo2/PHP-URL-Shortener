@@ -75,11 +75,49 @@ jQuery(function($) {
 	$(".shorturl").popover({
 		'title':'Short URL',
 		'content':'Click to select this short url for use in social media campaigns, and online advertising.'
-	}); 
+	});
+	//@see http://stackoverflow.com/questions/17074687/filtering-table-rows-using-jquery
+	$("#searchInput").keyup(function () {
+    //split the current value of searchInput
+    var data = this.value.split(" ");
+    //create a jquery object of the rows
+    var rows = $("#short_url_list").find("tr");
+    if (this.value == "") {
+        rows.show();
+        return;
+    }
+    //hide all the rows
+    rows.hide();
+
+    //Recursively filter the jquery object to get results.
+    rows.filter(function (i, v) {
+        var $t = $(this);
+        for (var d = 0; d < data.length; ++d) {
+            if (
+								$t.is(":contains('" + data[d] + "')")
+									|| $t.find('input:first').val().indexOf(data[d]) != -1
+									|| $t.find('input:last').val().indexOf(data[d]) != -1
+								) {
+                return true;
+            }
+        }
+        return false;
+    })
+    //show the rows that match.
+    .show();
+}).focus(function () {
+    this.value = "";
+    $(this).css({
+        "color": "black"
+    });
+    $(this).unbind('focus');
+}).css({
+    "color": "#C0C0C0"
+});
 	$(".longurl").popover({
 		title:'Long URL',
 		placement: 'top',
-		content:'Edit URL redirection. <span class="label">Press Enter to save.</span>'
+		content:'Edit URL redirection. <span class="label label-success">Press Enter to save.</span>'
 	}); 
 	$(".conversions").popover({
 		'title':'What is a conversion?',

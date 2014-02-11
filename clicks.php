@@ -15,43 +15,40 @@ userIsAuthorized();
 <body>
 <?php 
 if (isset($_REQUEST['id'])) {
-	$clicks = get_clicks($_REQUEST['id']);
-	$first_click = reset($clicks);
-	$last_click = end($clicks);
-  //Pass the MySQL timestamp through a timestamp and back, to round it into a date
-	$first_click_ts = strtotime(date('Y-m-d', strtotime($first_click['time'])));
-	$last_click_ts = strtotime(date('Y-m-d', strtotime($last_click['time'])));
-	$first_click_days = $first_click_ts / (60 * 60 * 24 );
-	$last_click_days  = $last_click_ts / (60 * 60 * 24);
-	$time_period_elapsed = round($last_click_days - $first_click_days);
-	$clicks_per_day = array();
-	if (count($clicks) > 0 ) {
-		$first_click_day_ts = strtotime(date('Y-m-d', $first_click_ts));
-		$last_click_day_ts = strtotime(date('Y-m-d', $last_click_ts));
-		for ($day = 0; $day <= $time_period_elapsed; $day++) {
-			$current_date_ts = ($day * 60 *60 * 24) + $first_click_day_ts;
-			$next_date_ts = (($day + 1) * 60 *60 * 24) + $first_click_day_ts;
-			$total_day_clicks = 0;
-			foreach ($clicks as $click) {
-				$click_ts = strtotime($click['time']);
-				if ($click_ts > $current_date_ts && $click_ts <= $next_date_ts) {
-//          echo 'Click date: ' . date('Y-m-d h:i:s', $click_ts) . '<br/>';
-//          echo 'Current date: ' . date('Y-m-d h:i:s', $current_date_ts) . '<br/>';
-//          echo 'Next date: ' . date('Y-m-d h:i:s', $next_date_ts) . '<br/>';
-					$total_day_clicks++;
-				} 
-			}
-			$current_date_string = date('Y-m-d', $current_date_ts);
-      if (! isset($_GET['table'])) {
-        //Include empty days for time line chart
-			  $clicks_per_day[$current_date_string] = $total_day_clicks;
-      } elseif ($total_day_clicks > 0) {
-        //Don't include empty days for dataTable
-			  $clicks_per_day[$current_date_string] = $total_day_clicks;
+  $clicks_per_day = array();
+  if (! isset($_GET['table'])) {
+    $clicks = get_clicks($_REQUEST['id']);
+    $first_click = reset($clicks);
+    $last_click = end($clicks);
+    //Pass the MySQL timestamp through a timestamp and back, to round it into a date
+    $first_click_ts = strtotime(date('Y-m-d', strtotime($first_click['time'])));
+    $last_click_ts = strtotime(date('Y-m-d', strtotime($last_click['time'])));
+    $first_click_days = $first_click_ts / (60 * 60 * 24 );
+    $last_click_days  = $last_click_ts / (60 * 60 * 24);
+    $time_period_elapsed = round($last_click_days - $first_click_days);
+    if (count($clicks) > 0 ) {
+      $first_click_day_ts = strtotime(date('Y-m-d', $first_click_ts));
+      $last_click_day_ts = strtotime(date('Y-m-d', $last_click_ts));
+      for ($day = 0; $day <= $time_period_elapsed; $day++) {
+        $current_date_ts = ($day * 60 *60 * 24) + $first_click_day_ts;
+        $next_date_ts = (($day + 1) * 60 *60 * 24) + $first_click_day_ts;
+        $total_day_clicks = 0;
+        foreach ($clicks as $click) {
+          $click_ts = strtotime($click['time']);
+          if ($click_ts > $current_date_ts && $click_ts <= $next_date_ts) {
+            $total_day_clicks++;
+          }
+        }
+        $current_date_string = date('Y-m-d', $current_date_ts);
+        $clicks_per_day[$current_date_string] = $total_day_clicks;
       }
-		}
-	}
-  $total_click_count = count($clicks);
+    }
+    $total_click_count = count($clicks);
+  } else {
+    //Get conversion data
+    $time_period_elapsed  =1; //Todo why is this required?
+    $clicks_per_day = fetch_rows('SELECT * FROM `click` WHERE `url_id`='.(int) $_REQUEST['id']. ' ORDER BY `time` ASC');
+  }
   if (isset($_GET['table'])) {
     //Hack the switch below for the table view
     $total_click_count = 2;
@@ -89,10 +86,25 @@ if (isset($_REQUEST['id'])) {
 	<script type="text/javascript">
 	var t = new google.visualization.DataTable();
 		t.addColumn('date', 'Date');
-		t.addColumn('number', 'Conversions');
+    <?php if (! isset($_GET['table'])) :?>
+		  t.addColumn('number', 'Conversions');
+    <?php else: ?>
+		  t.addColumn('string', 'IP Address');
+		  t.addColumn('string', 'Referrer');
+		  t.addColumn('string', 'User Agent');
+    <?php endif;?>
 		t.addRows([
-   			<?php foreach ($clicks_per_day as $date => $clicks ): ?>
-				[<?php echo formatJSDate($date);?>,   <?php echo $clicks; ?>],
+      <?php foreach ($clicks_per_day as $date => $clicks ): ?>
+        <?php if (! isset($_GET['table'])) :?>
+          [<?php echo formatJSDate($date);?>,   <?php echo $clicks; ?>],
+        <?php else: ?>
+          [
+            <?php echo formatJSDate($clicks['time']);?>,
+            <?php echo json_encode($clicks['remote_ip']); ?>,
+            <?php echo json_encode(($clicks['referrer'] == 'NULL' ? 'Direct Entry' : $clicks['referrer'])); ?>,
+            <?php echo json_encode($clicks['ua']) ?>
+          ],
+        <?php endif;?>
 			<?php endforeach; ?>
 		]);
 	</script>

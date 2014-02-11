@@ -60,7 +60,10 @@ userIsAuthorized();
 		</div>
 	</form>
 </div>
-<h1>Current Short URLS <a href="<?php echo $_SERVER['PHP_SELF']?>" class="btn" >Refresh</a></h1>
+  <div class="well">
+    <h1>Current Short URLS <a href="<?php echo $_SERVER['PHP_SELF']?>" class="btn" >Refresh</a></h1>
+    <input type="text" id="searchInput" value="Search"/>
+  </div>
 <div id="current_shorturl_wrapper">
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-striped table table-condensed" >
 	<tr>
