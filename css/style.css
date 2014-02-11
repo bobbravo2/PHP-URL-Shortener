@@ -19,6 +19,11 @@
 	-ms-transition: all .2s linear;
 	transition: all .2s linear;
 }
+#current_shorturl_wrapper
+{
+	max-height: 600px;
+	overflow: auto;
+}
 .qr_code_td:hover .qrcode IMG
 {
 	-webkit-transform: scale(2);

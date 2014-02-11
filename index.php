@@ -60,8 +60,8 @@ userIsAuthorized();
 		</div>
 	</form>
 </div>
-<div id="current_shorturl_hwrapper">
 <h1>Current Short URLS <a href="<?php echo $_SERVER['PHP_SELF']?>" class="btn" >Refresh</a></h1>
+<div id="current_shorturl_wrapper">
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-striped table table-condensed" >
 	<tr>
     <th>Short URL <abbr title="Redirects to">&rarr;</abbr> Long URL</th>
@@ -79,7 +79,7 @@ userIsAuthorized();
 	</tbody>
 	</table>
 </div>
-  <div class="recent">
+  <div class="recent" id="recentScans">
     <h3>Recent Scans</h3>
     <?php $recent = isset($_GET['recent']) ? (int) $_GET['recent'] : 10; ?>
     <?php $recent = $recent >= 10 ? $recent : 10; ?>
@@ -104,12 +104,14 @@ userIsAuthorized();
               '<b>IP:</b> ' . $row['remote_ip'] . '<br/>'.
               '<b>User-agent:</b> ' . $row['ua'] .
               ($row['referrer'] != 'NULL' ? '<br/><b>Referred by:</b> ' . $row['referrer']  : ''); ?>
-            <td class="pop" data-title="User Data" data-placement="top" data-content="<?php echo $user_data ?>"><?php echo $row['remote_ip'] ?></td>
+            <td class="pop" data-title="User Data" data-placement="left" data-content="<?php echo $user_data ?>">
+              <span class="badge badge-info"><?php echo $row['remote_ip'] ?></span>
+            </td>
           </tr>
         <?php endwhile; ?>
         <tr>
           <td colspan="5">
-            <a class="btn btn-block" href="<?php echo BASE_HREF . 'index.php?recent=' . $recent_next ?>">More</a>
+            <a class="btn btn-block" href="<?php echo BASE_HREF . 'index.php?recent=' . $recent_next ?>#recentScans">More</a>
           </td>
         </tr>
       </table>
@@ -122,11 +124,11 @@ userIsAuthorized();
 </div>
 
 	<div id="dialog" style="display:none" title="Statistics">
-		<iframe src="#"></iframe>
+		<iframe src="about:blank;"></iframe>
 	</div>
-	<script defer="defer" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script defer="defer" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 	<link type="text/css" rel="Stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css" />
+	<script defer="defer" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script defer="defer" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 	<script defer="defer" type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script defer="defer" type="text/javascript" src="js/jquery.custom.js"></script>
 </body>

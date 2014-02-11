@@ -72,25 +72,23 @@ jQuery(function($) {
 	});
 	$(".redir").tooltip({'title':'Redirects to'}) 
 	$(".pop").popover();
-	$(".analytics").popover({
-		'title':'Analytics',
-		'content':'Click to view conversions over time for this redirect/qr code.'
-	}); 
 	$(".shorturl").popover({
 		'title':'Short URL',
 		'content':'Click to select this short url for use in social media campaigns, and online advertising.'
 	}); 
 	$(".longurl").popover({
-		'title':'Long URL',
-		'content':'Edit URL redirection. <span class="label">Press Enter to save.</span>'
+		title:'Long URL',
+		placement: 'top',
+		content:'Edit URL redirection. <span class="label">Press Enter to save.</span>'
 	}); 
 	$(".conversions").popover({
 		'title':'What is a conversion?',
 		'content':'This is the number of times someone has scanned the QR code, or used the Short URL.',
 		'placement': 'top'
-	}); 
-	var qr_note_string = 'Click to download and save this QR code for use in promotional products, '+
-						'literature, etc.<br/><p class="alert alert-warning">Test QR codes for "scannability" before print runs.</p>';
+	});
+	var qr_note_string = 'Click to download this QR code for use in promotional products, literature, etc.<br/> '+
+			'<p class="alert alert-danger">Test QR codes for before printing</p>' +
+			'<p class="alert alert-info">We recommend using a variety of QR code apps, and different phones, if possible. This will ensure the QR scans with as many devices as possible.</p>';
 	$(".qrcode").popover({
 		'title':'QR Code Download',
 		'content': qr_note_string,

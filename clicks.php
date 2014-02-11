@@ -18,8 +18,9 @@ if (isset($_REQUEST['id'])) {
 	$clicks = get_clicks($_REQUEST['id']);
 	$first_click = reset($clicks);
 	$last_click = end($clicks);
-	$first_click_ts = strtotime($first_click['time']);
-	$last_click_ts = strtotime($last_click['time']);
+  //Pass the MySQL timestamp through a timestamp and back, to round it into a date
+	$first_click_ts = strtotime(date('Y-m-d', strtotime($first_click['time'])));
+	$last_click_ts = strtotime(date('Y-m-d', strtotime($last_click['time'])));
 	$first_click_days = $first_click_ts / (60 * 60 * 24 );
 	$last_click_days  = $last_click_ts / (60 * 60 * 24);
 	$time_period_elapsed = round($last_click_days - $first_click_days);
@@ -34,14 +35,28 @@ if (isset($_REQUEST['id'])) {
 			foreach ($clicks as $click) {
 				$click_ts = strtotime($click['time']);
 				if ($click_ts > $current_date_ts && $click_ts <= $next_date_ts) {
+//          echo 'Click date: ' . date('Y-m-d h:i:s', $click_ts) . '<br/>';
+//          echo 'Current date: ' . date('Y-m-d h:i:s', $current_date_ts) . '<br/>';
+//          echo 'Next date: ' . date('Y-m-d h:i:s', $next_date_ts) . '<br/>';
 					$total_day_clicks++;
 				} 
 			}
 			$current_date_string = date('Y-m-d', $current_date_ts);
-			$clicks_per_day[$current_date_string] = $total_day_clicks;
+      if (! isset($_GET['table'])) {
+        //Include empty days for time line chart
+			  $clicks_per_day[$current_date_string] = $total_day_clicks;
+      } elseif ($total_day_clicks > 0) {
+        //Don't include empty days for dataTable
+			  $clicks_per_day[$current_date_string] = $total_day_clicks;
+      }
 		}
 	}
-	switch (count($clicks)) :
+  $total_click_count = count($clicks);
+  if (isset($_GET['table'])) {
+    //Hack the switch below for the table view
+    $total_click_count = 2;
+  }
+  switch ($total_click_count) :
 	case 0: ?>
 		<div class="alert alert-info hero-unit">
 		<blockquote>
@@ -60,32 +75,39 @@ if (isset($_REQUEST['id'])) {
 	<?php 
 		break;
 	default: ?>
-    <?php if ($time_period_elapsed > 0 ) : //Only show timeline if there is more than 1 day elapsed?>
+    <?php if ( ($time_period_elapsed > 0) || isset($_GET['table'])) :
+    //Only show timeline if there is more than 1 day elapsed?>
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <?php if (isset($_GET['table'])) :?>
+      <?php $packages = array('table') ?>
+    <?php else: ?>
+      <?php $packages = array('annotatedtimeline') ?>
+    <?php endif;?>
     <script type="text/javascript">
-		google.load('visualization', '1.0', {'packages':['annotatedtimeline']});
+		google.load('visualization', '1.0', {'packages':<?php echo json_encode($packages) ?>});
 	</script>
 	<script type="text/javascript">
 	var t = new google.visualization.DataTable();
 		t.addColumn('date', 'Date');
-		t.addColumn('number', 'Clicks');
+		t.addColumn('number', 'Conversions');
 		t.addRows([
    			<?php foreach ($clicks_per_day as $date => $clicks ): ?>
-				[<?php echo formatJSdate($date);?>,   <?php echo $clicks; ?>],
+				[<?php echo formatJSDate($date);?>,   <?php echo $clicks; ?>],
 			<?php endforeach; ?>
 		]);
 	</script>
 	<div id="visualization" style="height:400px; width:600px;" ></div>
     <script>
 		google.setOnLoadCallback(function  () {
-	  		var timeline = new google.visualization.AnnotatedTimeLine(document.getElementById('visualization'));
+	  		var timeline = new google.visualization.<?php if (isset($_GET['table'])) : ?>Table<?php else: ?>AnnotatedTimeLine<?php endif; ?>(document.getElementById('visualization'));
 			timeline.draw(t, {'displayAnnotations': false});
 		});
 		</script>
 		<?php else: //There are multiple clicks, but only 1 day to display ?>
 			<div class="alert alert-success hero-unit">
 				<h1>Great job!</h1>
-				<p>There have been <?php echo count($clicks)?> conversions so far today. Once more time has elapsed, you'll be able to see the conversions over time.</p>
+				<p>There have been <?php echo count($clicks)?> conversions on <?php echo key($clicks_per_day) ?>.
+          Once more conversions have been made over a few days, you'll be able to see a timeline.</p>
 			</div>
 		<?php endif;?>
 	<?php endswitch; 

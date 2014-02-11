@@ -7,9 +7,9 @@ if(!empty($url_to_shorten)) {
 	require_once 'includes.php';
 	userIsAuthorized();
 	//Check if the shortened url is a resubmit of an already shortened url
-	if (preg_match('|^'.BASE_HREF.'|', $url_to_shorten)) {
+	if (preg_match('|^'.BASE_HREF.'|', $url_to_shorten) && ! DISABLE_SHORTENING_CHECK) {
 		header("HTTP/1.0 400 Bad Request");
-		die('This url is already short! See the full table below');
+		die('This url has the same domain as the current URL shortening service. ('.BASE_HREF.')');
 	}
 	
 	if (! preg_match('|^https?://|', $url_to_shorten) ) {

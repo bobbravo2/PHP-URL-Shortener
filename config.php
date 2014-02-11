@@ -59,6 +59,12 @@ define('ALLOWED_CHARS', '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS
 defined('CACHE') or define('CACHE', FALSE);
 
 /**
+ * Should the script check the domain for the current service URL?
+ * This prevents re-submitting already shortened URLs
+ */
+defined('DISABLE_SHORTENING_CHECK') or define('DISABLE_SHORTENING_CHECK', false);
+
+/**
  * Cache directory, trailing slash included
  */
 define('CACHE_DIR', dirname(__FILE__) . '/cache/');

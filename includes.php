@@ -169,12 +169,12 @@ function get_clicks ($url_id) {
 	}
 	return $return;
 }
-function formatJSdate ($time) {
+function formatJSDate ($time) {
 	$timestamp = strtotime($time);
 	$js_date_format = 'new Date(%s, %s, %s, %s, %s, %s)';
 	return sprintf($js_date_format,
 			date('Y', $timestamp),
-			date('m', $timestamp),
+			date('m', $timestamp) - 1, //Fix for JS date 1 = February
 			date('d', $timestamp),
 			date('G', $timestamp),
 			date('i', $timestamp),
@@ -265,34 +265,69 @@ function render_table ($url_id = NULL) {
 	$return = '';
 	if (! $result ) return '<tr><td colspan="4"><div class="well alert alert-error">No Short URLS yet.</div></td></tr>';
 	while ($row = mysql_fetch_assoc($result)) {
-		$return .='<tr>';
-			$return .='<td>';
-			$return .= '<div class="control-group">';
-				$return .='<input class="shorturl uneditable-input" onclick="$(this).select();" style="cursor:pointer;" type="text" size="30" name="short['.$row['id'].']" value="'.BASE_HREF.getShortenedURLFromID($row['id']).'"/>
-							<span class="redir">&rarr;</span> ';
-					$return .= '<input type="text" name="longurl'.$row['id'].'" data-id="'.$row['id'].'" class="input-xxlarge longurl"';
-					$return .= ' value="'.$row['long_url'].'" ';
-					$return .= ' />';
-				$return .= '</div>';
-			$return .='</td>';
-			$return .='<td>';
-				$return .= '<a class="analytics btn" href="clicks.php?id='.$row['id'].'">';
-					$return .= get_total_clicks($row['id']);
-				$return .= '</a>';
-			$return .='</td>';
-			$return .='<td>';
-				$return .= date('n/j/Y', strtotime($row['created']));
-			$return .='</td>';
-			$return .='<td class="qr_code_td">';
-				$return .='<a class="qrcode btn" href="?download='.$row['id'].'">';
-					$return .='<img src="?qr='.$row['id'].'" height="'.QR_PREVIEW.'" width="'.QR_PREVIEW.'" alt="QR Code" />';
-				$return .='</a>';
-			$return .='</td>';
-    $return .= '<td>' . (file_exists(CACHE_DIR . $row['id']) ? 'Cached' : 'Not-Cached') . '</td>';
-		$return .='</tr>';
-	}
+    ob_start();?>
+		<tr>
+			<td>
+			<div class="control-group">
+        <input
+          class="shorturl uneditable-input"
+          onclick="$(this).select();return false;"
+          style="cursor:pointer;"
+          type="text"
+          size="30"
+          name="short[<?php echo $row['id']; ?>]"
+          value="<?php echo BASE_HREF.getShortenedURLFromID($row['id']); ?>" />
+          <span class="redir">&rarr;</span>
+					<input
+            type="text"
+            name="longurl[<?php echo $row['id'] ?>]"
+            data-id="<?php echo $row['id'] ?>"
+            class="input-xxlarge longurl"
+					  value="<?php echo $row['long_url'] ?>"/>
+				</div>
+			</td>
+			<td>
+        <?php $there_are_clicks = get_total_clicks($row['id']) > 0 ? true : false; ?>
+        <?php if (! $there_are_clicks) :?>
+          <span class="tip" data-title="No Conversions. Use the Short URL, and distribute the QR code to start getting conversions!">
+        <?php endif;?>
+          <span class="badge <?php echo $there_are_clicks ? 'badge-success' : 'badge-warning'?>">
+            <?php echo get_total_clicks($row['id']); ?>
+          </span>
+        <?php if (! $there_are_clicks) :?>
+          </span>
+        <?php endif;?>
+        <?php if (get_total_clicks($row['id'])> 0) :?>
+          <a class="analytics btn pop" data-title="Conversion Timeline" data-content="View conversions in a timeline." data-placement="top" href="clicks.php?id=<?php echo $row['id'] ?>">
+            <span class="icon-calendar"></span>
+          </a>
+          <a data-title="Conversion List" data-content="View a list of conversions, by date." class="btn pop analytics" data-placement="top" href="clicks.php?id=<?php echo $row['id'] ?>&table">
+            <span class="icon-list"></span>
+          </a>
+        <?php endif;?>
+			</td>
+			<td>
+				<?php echo date('n/j/Y', strtotime($row['created'])); ?>
+			</td>
+			<td class="qr_code_td">
+				<a class="qrcode btn" href="?download='.$row['id'].'">
+					<img src="?qr=<?php echo $row['id'] ?>" height="<?php echo QR_PREVIEW ?>" width="<?php echo QR_PREVIEW ?>" alt="QR Code" />
+				</a>
+			</td>
+      <td>
+        <?php if (file_exists(CACHE_DIR . $row['id'])) :?>
+          Cached
+        <?php else: ?>
+          Not-Cached
+        <?php endif;?>
+      </td>
+		</tr>
+<?php
+  }
 	unset($result);
-	return $return;
+    $content = ob_get_contents();
+    ob_end_clean();
+	return $content;
 }
 /**
  * Checks if the user is authorized, stops execution if not;
