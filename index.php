@@ -60,9 +60,12 @@ userIsAuthorized();
 		</div>
 	</form>
 </div>
-  <div class="well">
-    <h1>Current Short URLS <a href="<?php echo $_SERVER['PHP_SELF']?>" class="btn" >Refresh</a></h1>
+  <div>
+    <h2>Current Short URLS
+      <a href="<?php echo $_SERVER['PHP_SELF']?>" class="btn" >Refresh</a>
+    </h2>
     <input type="text" id="searchInput" value="Search"/>
+    <a href="#recentScans" class="btn">View Recent Scans</a>
   </div>
 <div id="current_shorturl_wrapper">
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-striped table table-condensed" >
@@ -78,11 +81,11 @@ userIsAuthorized();
     <th>Cached?</th>
 	</tr>
 	<tbody id="short_url_list">
-	<?php echo render_table(); ?>
+	  <?php echo render_table(); ?>
 	</tbody>
 	</table>
 </div>
-  <div class="recent" id="recentScans">
+  <div class="recent well-small" id="recentScans">
     <h3>Recent Scans</h3>
     <?php $recent = isset($_GET['recent']) ? (int) $_GET['recent'] : 10; ?>
     <?php $recent = $recent >= 10 ? $recent : 10; ?>
@@ -90,33 +93,44 @@ userIsAuthorized();
     <?php $results = query('SELECT * FROM `click` ORDER BY `time` DESC LIMIT ' . $recent) ?>
     <?php if (mysql_num_rows($results) > 0) :?>
       <table class="table table-bordered">
-        <tr>
-          <th>ID</th>
-          <th>Short URL</th>
-          <th>Long URL</th>
-          <th>When</th>
-          <th>User's IP</th>
-        </tr>
-        <?php while ($row = mysql_fetch_assoc($results)): ?>
+        <thead>
           <tr>
-            <td><?php echo $row['id'] ?></td>
-            <td><?php echo BASE_HREF . getShortenedURLFromID($row['url_id']) ?></td>
-            <td><?php echo getLongURL($row['url_id']); ?></td>
-            <td><?php echo time_ago($row['time']); ?></td>
-            <?php $user_data =
-              '<b>IP:</b> ' . $row['remote_ip'] . '<br/>'.
-              '<b>User-agent:</b> ' . $row['ua'] .
-              ($row['referrer'] != 'NULL' ? '<br/><b>Referred by:</b> ' . $row['referrer']  : ''); ?>
-            <td class="pop" data-title="User Data" data-placement="left" data-content="<?php echo $user_data ?>">
-              <span class="badge badge-info"><?php echo $row['remote_ip'] ?></span>
-            </td>
+            <th>Short URL</th>
+            <th>Long URL</th>
+            <th>When</th>
+            <th colspan="2">Conversion Info</th>
           </tr>
-        <?php endwhile; ?>
-        <tr>
-          <td colspan="5">
-            <a class="btn btn-block" href="<?php echo BASE_HREF . 'index.php?recent=' . $recent_next ?>#recentScans">More</a>
-          </td>
-        </tr>
+        </thead>
+        <tbody>
+          <?php while ($row = mysql_fetch_assoc($results)): ?>
+            <tr>
+              <td><?php echo BASE_HREF . getShortenedURLFromID($row['url_id']) ?></td>
+              <td><?php echo getLongURL($row['url_id']); ?></td>
+              <td><?php echo time_ago($row['time']); ?></td>
+              <?php $user_data =
+                '<b>IP:</b> ' . $row['remote_ip'] . '<br/>'.
+                '<b>User-agent:</b> ' . $row['ua'] .
+                ($row['referrer'] != 'NULL' ? '<br/><b>Referred by:</b> ' . $row['referrer']  : ''); ?>
+              <td class="pop" data-title="User Data" data-placement="left" data-content="<?php echo $user_data ?>">
+                <span class="badge badge-info"><?php echo $row['remote_ip'] ?></span>
+              </td>
+              <td>
+                <a data-title="List" data-icon="icon-refresh" data-content="View a list of all conversions for this url." class="btn pop analytics" data-placement="left" href="clicks.php?id=<?php echo $row['url_id'] ?>&table">
+                  <span class="icon-list"></span>
+                </a>
+              </td>
+            </tr>
+          <?php endwhile; ?>
+        </tbody>
+        <?php if ($recent_next < count(fetch_rows('SELECT id FROM click'))) :?>
+          <tfoot>
+            <tr>
+              <td colspan="5">
+                <a class="btn btn-block loadMore" data-start="<?php echo $recent_next ?>" href="<?php echo BASE_HREF . 'index.php?recent=' . $recent_next ?>#recentScans">More</a>
+              </td>
+            </tr>
+          </tfoot>
+        <?php endif;?>
       </table>
     <?php else: ?>
       <div class="alert alert-info">
@@ -125,11 +139,10 @@ userIsAuthorized();
     <?php endif;?>
   </div>
 </div>
-
 	<div id="dialog" style="display:none" title="Statistics">
 		<iframe src="about:blank;"></iframe>
 	</div>
-	<link type="text/css" rel="Stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css" />
+	<link type="text/css" rel="Stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/redmond/jquery-ui.css" />
 	<script defer="defer" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 	<script defer="defer" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 	<script defer="defer" type="text/javascript" src="js/bootstrap.min.js"></script>

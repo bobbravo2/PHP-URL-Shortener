@@ -46,9 +46,13 @@ function getShortenedURLFromID ($integer, $base = ALLOWED_CHARS)
 	}
 	return $base[$integer] . $out;
 }
+
 /**
  * Gets the long url from DB
- * @param mixed $shortened_id false on failure, string long url on success
+ *
+ * @param int $shortened_id primary key (url.id)
+ *
+ * @return bool|string false on failure, long url on success / found
  */
 function getLongURL ($shortened_id) {
 	$sql = 'SELECT `long_url` FROM `url` WHERE id="' . mysql_real_escape_string($shortened_id) . '"';
@@ -346,12 +350,25 @@ function userIsAuthorized () {
 	if ( AUTH ) return;
 	doRedirectOrDie();
 }
-function do301 ($url) {
+
+/**
+ * Does a 301 redirect
+ * @param string $url
+ * @param bool $die defaults to true, false to continue execution
+ */
+function do301 ($url, $die = true) {
 	noCacheHeaders();
 	header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' .  $url, TRUE, 301);
-	die;
+  if ($die) {
+	  die;
+  }
 }
+
+/**
+ * If a REDIRECT_URL is set, or die otherwise
+ * @param string $diemsg
+ */
 function doRedirectOrDie($diemsg = 'Authorized Users Only') {
 	noCacheHeaders();
 	if (defined('REDIRECT_URL')) do301(REDIRECT_URL);

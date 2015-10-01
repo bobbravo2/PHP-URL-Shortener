@@ -114,6 +114,15 @@ jQuery(function($) {
 }).css({
     "color": "#C0C0C0"
 });
+	$("#recentScans").on('click', '.loadMore', function() {
+		var $this = $(this), originalTitle = $this.html();
+		$this.html('Loading...');
+		$("#recentScans table").load($this.attr('href') + ' #recentScans table', function() {
+			$this.html(originalTitle);
+			$(".pop").popover();
+		});
+		return false;
+	});
 	$(".longurl").popover({
 		title:'Long URL',
 		placement: 'top',
@@ -137,14 +146,22 @@ jQuery(function($) {
 		autoOpen: false,
 		modal: true,
 		width: 680,
-		buttons: {
-			'Close':  function  () {
-				$(this).dialog('close');
+		buttons: [
+			{
+				text: 'Close',
+				class: 'btn btn-primary',
+				click: function  () {
+					$(this).dialog('close');
+				}
 			},
-			"Refresh": function  () {
-				$( '#dialog iframe' ).attr( 'src', function ( i, val ) { return val; });
+			{
+				text: "Refresh",
+				class: 'btn btn-info',
+				click: function  () {
+					$( '#dialog iframe' ).attr( 'src', function ( i, val ) { return val; });
+				}
 			}
-		}
+		]
 	});
 	$(".analytics").on('click', function  () {
 		var src = $(this).attr('href');

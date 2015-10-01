@@ -25,11 +25,26 @@ if( CACHE ) {
 		}
 	}
 } else {
-	//No caching, just get the long url form DB
+	//No caching, just get the long url from DB
 	$long_url = getLongURL($shortened_id);
 }
 if (empty($long_url)) doRedirectOrDie();
+//Check if there is no value, if so, redirect to the config's homepage
+if ( empty( $long_url ) && defined("REDIRECT_URL") ) $long_url = HOME_URL;
+noCacheHeaders();
 
+// IF yes tracking, do not die, continue asynchronously
+$die = TRACK ? false : true;
+do301($long_url, $die);
+//Begin Async
+ob_end_clean();
+header("Connection: close");
+ignore_user_abort(true);
+ob_start();
+header("Content-Length: 0");
+ob_end_flush();
+flush();
+//End Async
 if(TRACK) {
 	$referrer = isset($_SERVER['HTTP_REFERER']) ? mysql_real_escape_string($_SERVER['HTTP_REFERER']): 'NULL';
 	$ua =  isset($_SERVER['HTTP_USER_AGENT']) ? mysql_real_escape_string($_SERVER['HTTP_USER_AGENT']) : 'NULL';
@@ -41,7 +56,4 @@ if(TRACK) {
 				('".(int)$shortened_id."','$ua', '$referrer', '$ip');";
 	query($sql);
 }
-//Check if there is no value, if so, redirect to the config's homepage
-if ( empty( $long_url ) && defined("REDIRECT_URL") ) $long_url = HOME_URL;
-noCacheHeaders();
-do301($long_url);
+die;
