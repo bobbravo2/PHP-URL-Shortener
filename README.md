@@ -1,3 +1,9 @@
+# URL Shortening Service
+
+![alt](docs/homepage-example-2.png)
+![alt](docs/homepage-example-1.png)
+![alt](docs/click-stats-example.png)
+
 License: http://www.gnu.org/licenses/gpl-2.0.html
 
 Benefits
